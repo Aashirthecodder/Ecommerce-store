@@ -75,7 +75,7 @@ function App() {
       const res = await axios.post("http://localhost:5000/products", formData);
       setProducts([...products, res.data.product]);
       setCreateForm({ title: "", description: "", price: "", images: null });
-
+     alert("product added")
   
     } catch (error) {
       console.error("Error uploading product:", error);

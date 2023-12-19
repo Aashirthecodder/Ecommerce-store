@@ -1,91 +1,21 @@
 import React, { useState, useEffect, Fragment } from "react";
 import axios from "axios"
-import { useSelector, useDispatch } from "react-redux";
-import {
- fetchBrandsAsync,
-  fetchCategoriesAsync,
-  fetchProductsByFilterAsync,
-  selectBrands,
-  selectCategories,
-  selectTotalItems,
-} from "../productListSlice";
 import { Link } from "react-router-dom";
-import { Dialog, Disclosure,Transition } from "@headlessui/react";
+import { Dialog,Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { MinusIcon, PlusIcon,  } from "@heroicons/react/20/solid";
 
 
-const sortOptions = [
-  { name: "Best Rating", sort: "rating", rder: "desc,", current: false },
 
-  { name: "Price: Low to High", sort: "price", order: "asc,", current: false },
-  { name: "Price: High to Low", sort: "price", order: "desc,", current: false },
-];
 
 
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
-  // const count = useSelector(selectCount);
-  const dispatch = useDispatch();
+
+
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  // const products = useSelector(selectAllProducts);
-  const totalItems = useSelector(selectTotalItems);
-  const brands = useSelector(selectBrands);
-  const categories = useSelector(selectCategories);
-  const filters = [
-    {
-      id: "brands",
-      name: "brands",
-      options: brands,
-    },
-    {
-      id: "category",
-      name: "Category",
-      options: categories,
-    },
-  ];
-
-  const [filter, setFilter] = useState({});
-  const [sort, setSort] = useState({});
-  const [page, setPage] = useState(1);
-
-  // const handleFilter = (e, section, option) => {
-  //   const newFilter = { ...filter };
-  //   if (e.target.checked) {
-  //     if (newFilter[section.id]) {
-  //       newFilter[section.id].push(option.value);
-  //     } else {
-  //       newFilter[section.id] = [option.value];
-  //     }
-  //   } else {
-  //     const index = newFilter[section.id].findIndex((el) => el === option.value);
-  //     newFilter[section.id].splice(index, 1);
-  //   }
-  
-
-  //   setFilter(newFilter);
 
 
-  // };
-
-  const handleSort = (e, option) => {
-    const sort = { _sort: option.sort, _order: option.order };
-
-    setSort(sort);
-  };
-
-  const handlePage = (page) => {
-
-    setPage(page);
-  };
-
-
-
-  useEffect(() => {
-    dispatch(fetchBrandsAsync());
-    dispatch(fetchCategoriesAsync());
-  }, []);
 
 
   useEffect(() => {
@@ -95,13 +25,13 @@ export default function ProductList() {
         setProducts(res.data.products);
       } catch (error) {
         console.error("Error fetching products:", error);
-        // Handle the error, e.g., set an error state or show a message to the user
+
       }
     };
   
-    fetchProducts(); // Call the function immediately
+    fetchProducts();
   
-    // Note: Removed [fetchProducts] from the dependency array
+
   }, []);
   
 
@@ -115,7 +45,7 @@ export default function ProductList() {
               mobileFiltersOpen={mobileFiltersOpen}
               setMobileFiltersOpen={setMobileFiltersOpen}
               // handleFilter={handleFilter}
-              filters={filters}
+              // filters={filters}
             ></MobileFilter>
 
             <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -132,7 +62,7 @@ export default function ProductList() {
 
                 <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3">
                   {/* Filters */}
-                  <DesktopFilter  filters={filters}></DesktopFilter>
+                  <DesktopFilter ></DesktopFilter>
 
                   {/* Product grid */}
                   <div className="lg:col-span-3">
@@ -142,9 +72,7 @@ export default function ProductList() {
                 </div>
               </section>
 
-              {/* section of products and filters end here */}
-
-              {/* <Pagination setPage={setPage} totalItems={totalItems} page={page} handlePage={handlePage}></Pagination> */}
+           
             </main>
           </div>
         </div>
@@ -194,49 +122,7 @@ function MobileFilter({ mobileFiltersOpen, setMobileFiltersOpen, handleFilter, f
 
               {/* Filters */}
               <form className="mt-4 border-t border-gray-200">
-                {filters.map((section) => (
-                  <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
-                    {({ open }) => (
-                      <>
-                        <h3 className="-mx-2 -my-3 flow-root">
-                          <Disclosure.Button className="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
-                            <span className="font-medium text-gray-900">{section.name}</span>
-                            <span className="ml-6 flex items-center">
-                              {open ? (
-                                <MinusIcon className="h-5 w-5" aria-hidden="true" />
-                              ) : (
-                                <PlusIcon className="h-5 w-5" aria-hidden="true" />
-                              )}
-                            </span>
-                          </Disclosure.Button>
-                        </h3>
-                        <Disclosure.Panel className="pt-6">
-                          <div className="space-y-6">
-                            {section.options.map((option, optionIdx) => (
-                              <div key={option.value} className="flex items-center">
-                                <input
-                                  id={`filter-mobile-${section.id}-${optionIdx}`}
-                                  name={`${section.id}[]`}
-                                  defaultValue={option.value}
-                                  onChange={(e) => handleFilter(e, section, option)}
-                                  type="checkbox"
-                                  defaultChecked={option.checked}
-                                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                />
-                                <label
-                                  htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                  className="ml-3 min-w-0 flex-1 text-gray-500"
-                                >
-                                  {option.label}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </Disclosure.Panel>
-                      </>
-                    )}
-                  </Disclosure>
-                ))}
+              
               </form>
             </Dialog.Panel>
           </Transition.Child>
@@ -276,16 +162,13 @@ function ProductGrid({ products }) {
                         {product.title}
                       </div>
                     </h3>
-                    {/* <p className="mt-1 text-sm text-gray-500">
-                      <StarIcon className="inline w-6 h-6"> </StarIcon>
-                      <span className="align-bottom"> {product.rating}</span>
-                    </p> */}
+                 
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                     ${product.price}
                     </p>
-                    {/* <p className="text-sm font-medium line-through text-gray-900">${product.price}</p> */}
+                
                   </div>
                 </div>
               </div>
